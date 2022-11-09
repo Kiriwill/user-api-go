@@ -1,0 +1,42 @@
+on:
+  workflow_call:
+    inputs:
+      region:
+        required: false
+        type: string
+        default: 'us-east-1'
+    secrets:
+      account_id:
+        required: true
+      role_to_assume:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+name: Docker image build
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{secrets.role_to_assume}}
+          aws-region: ${{inputs.region}}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: build and publish image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ${{secrets.account_id}}.dkr.ecr.${{inputs.region}}.amazonaws.com/basemed/<PROJECT NAME>:latest
+            ${{secrets.account_id}}.dkr.ecr.${{inputs.region}}.amazonaws.com/basemed/<PROJECT NAME>:${{github.sha}}

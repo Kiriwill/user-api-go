@@ -1,0 +1,17 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - './pkg/**'
+      - './cmd/**'
+      - './Dockerfile'
+
+name: <PROJECT NAME> production delivery
+jobs:
+  call-publish:
+    uses: ./.github/workflows/build-image.yml
+    secrets:
+      role_to_assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/github-actions-org-iclinicrx
+      account_id: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
