@@ -1,24 +1,15 @@
-# Define your environment variables here
+echo "- Starting docker.."
+docker compose up -d db
 
-# set -e
-# echo ""
-# export DATABASE_URL="${DATABASE_URL-postgres://postgres:postgres@0.0.0.0/database?sslmode=disable}"
-# export LOG_LEVEL="debug"
+echo "- Waiting for mysql to be ready..."
+RETRIES=10
 
-# Configure the dependencies (if needed)
-# echo "- Executing database migrations..."
-# migrate -path ./pkg/db/migrations/ -database $DATABASE_URL up
-# echo ""
+export VERIFYMY_DATABASE_DSN="devwill:supersecret@tcp(localhost:3306)/verifymychallenge"
+until docker run -it --rm --network host mysql:8.2.0 mysqld "$VERIFYMY_DATABASE_DSN" -c "select 1;" > /dev/null || [ $RETRIES -eq 0 ]; do
+    echo " $((RETRIES--)) remaining attempts..."
+    sleep 1;
+done
 
-# Run the project
-# If it is being ran with parameters it'll customize the command and run another cmd instead of the main one
-if [[ $1 != "" ]]; then
-    if [[ -e "./.$1.air.toml" ]];then
-      air -c ./.$1.air.toml 
-    else
-      air -build.cmd "go build -o ./build/bin/$1 ./cmd/$1" -build.bin "./build/bin/$1" || echo "! Command not found" > /dev/stderr
-    fi
-    exit 0
-fi
-
+echo "- Running application..."
 air
+

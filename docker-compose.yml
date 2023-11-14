@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    container_name: desafio-verifymy-db
+    image: mysql:8.2.0
+    restart: always
+    healthcheck:
+      test: /usr/bin/mysql
+      interval: 2s
+      timeout: 10s
+      retries: 30
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=FALSE
+      - MYSQL_RANDOM_ROOT_PASSWORD=FALSE
+      - MYSQL_USER=devwill
+      - MYSQL_PASSWORD=supersecret
+      - MYSQL_DATABASE=verifymychallenge
+  api:
+    build: .
+    container_name: desafio-verifymy-api
+    restart: always
+    depends_on:
+      db: 
+        condition: service_healthy
+    links: 
+      - "db"
+    ports:
+      - 8080:8080
+
+
+
+
