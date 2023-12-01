@@ -1,3 +1,6 @@
+# Description
+> A simple repository with basic CRUD api and DDD pattern to serve as a showcase. 
+
 ## Getting started
 ### Project structure
 - `/cmd` will have all the code that will be built and shipped as binaries. they are most likely to be named `main.go` and be found at `/cmd/<executable-name>/main.go`
